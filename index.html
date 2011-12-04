@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game of Life</title>
+    <link href="jasmine.css" media="all" rel="stylesheet" type="text/css"/>
+    
+    <script type="text/javascript" src="underscore.js"></script>
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="game.js"></script>
+</head>
+<body>
+    <script type="text/javascript">
+    var Game = new GameOfLife({
+        width: 50,
+        height: 50,
+        liveCells: 100
+    });
+    
+    $(document).ready(function(evt) {
+        Game.render();
+        
+        $(window).keypress(function(evt) {
+            if (evt.charCode === 110) {
+                Game.takeStep();
+                Game.render();
+            }
+        });
+    });
+    </script>
+</body>
+</html>
