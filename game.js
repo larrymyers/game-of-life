@@ -49,6 +49,9 @@
                 nextBoard = [], 
                 rowLen, x, y;
             
+            // starting in the top-left corner iterate over
+            // each row, persisting the evolved state of each
+            // cell into a new board
             for (y = 0; y < board.length; y++) {
                 rowLen = board[y].length;
                 nextBoard.push([]);
@@ -66,17 +69,19 @@
         }
     });
     
-    function getLiveCellCount(board, _x, _y) {
+    // gets the live cell count of the adjacent cells
+    // surrounding the target cell, given by the row/column coord.
+    function getLiveCellCount(board, row, col) {
         var count = 0,
-            minx = Math.max(0, _x-1),
-            maxx = Math.min(board[0].length-1, _x+1),
-            miny = Math.max(0, _y-1),
-            maxy = Math.min(board.length-1, _y+1),
+            minx = Math.max(0, row - 1),
+            maxx = Math.min(board[0].length - 1, row + 1),
+            miny = Math.max(0, col - 1),
+            maxy = Math.min(board.length - 1, col + 1),
             x, y;
         
         for (y = miny; y <= maxy; y++) {
             for (x = minx; x <= maxx; x++) {
-                if (x === _x && y === _y) { continue; }
+                if (x === row && y === col) { continue; }
                 
                 if (board[y][x]) {
                     count++;
