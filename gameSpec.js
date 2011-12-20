@@ -1,6 +1,8 @@
 describe('GameOfLife', function() {
     
     beforeEach(function() {
+        $('body').append('<div id="game-board"></div>');
+        
         this.addMatchers({
             toMatchBoard: function(expected) {
                 var actual = this.actual,
@@ -17,6 +19,10 @@ describe('GameOfLife', function() {
                 return true;
             }
         });
+    });
+    
+    afterEach(function() {
+        $('#game-board').remove();
     });
     
     it('Should default to a 20x20 board.', function() {

@@ -40,23 +40,21 @@
             dims = game.dimensions,
             size = 600 / dims.width,
             rects = [],
-            rect, rowLen, y, x
+            rect;
         
         game.paper = Raphael('game-board', 600, 600);
         
-        for (y = 0; y < board.length; y++) {
-            rowLen = board[y].length;
+        _.each(board, function(row, y) {
             rects.push([]);
             
-            for (x = 0; x < rowLen; x++) {
+            _.each(row, function(cell, x) {
                 var rect = game.paper.rect(size*x, size*y, size, size);
-                rect.attr('stroke', '#ccc');
-                rect.attr('fill', '#fff');
-                
                 rects[y].push(rect);
+                
+                rect.attr('stroke', '#ccc');
                 fillRect(rect, board[y][x]);
-            }
-        }
+            });
+        });
         
         game.rects = rects;
     }
