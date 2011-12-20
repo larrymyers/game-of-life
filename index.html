@@ -9,22 +9,22 @@
     <script type="text/javascript" src="game.js"></script>
 </head>
 <body>
+    <div id="game-board"></div>
+    
     <script type="text/javascript">
     var Game = new GameOfLife({
-        width: 50,
-        height: 50,
-        liveCells: 100
+        width: 40,
+        height: 40,
+        liveCells: 300
     });
     
     $(document).ready(function(evt) {
         Game.render();
         
-        $(window).keypress(function(evt) {
-            if (evt.charCode === 110) {
-                Game.takeStep();
-                Game.render();
-            }
-        });
+        setInterval(function() {
+            Game.takeStep();
+            Game.render();
+        }, 120);
     });
     </script>
 </body>

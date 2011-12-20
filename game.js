@@ -30,17 +30,42 @@
         return board;
     }
     
+    function initUI(game) {
+        var board = game.board,
+            dims = game.dimensions,
+            size = 600 / dims.width,
+            rects = [],
+            rect, rowLen, y, x
+        
+        game.paper = Raphael('game-board', 600, 600);
+        
+        for (y = 0; y < board.length; y++) {
+            rowLen = board[y].length;
+            rects.push([]);
+            
+            for (x = 0; x < rowLen; x++) {
+                var rect = game.paper.rect(size*x, size*y, size, size);
+                rect.attr('stroke', '#ccc');
+                rect.attr('fill', '#fff');
+                
+                rects[y].push(rect);
+            }
+        }
+        
+        game.rects = rects;
+    }
+    
     GameOfLife = function(options) {
         options = options || {};
         
-        var dimensions = _.extend({
+         this.dimensions = _.extend({
             width: 20,
             height: 20
         }, options);
         
         var liveCells = options.liveCells || 0;
         
-        this.board = generateBoard(dimensions, liveCells);
+        this.board = generateBoard(this.dimensions, liveCells);
     };
     
     _.extend(GameOfLife.prototype, {
@@ -65,7 +90,26 @@
         },
         
         render: function() {
+            if (! this.rects) {
+                initUI(this);
+            }
             
+            var cell, rect, rowLen, y, x;
+            
+            for (y = 0; y < this.board.length; y++) {
+                rowLen = this.board[y].length;
+                
+                for (x = 0; x < rowLen; x++) {
+                    cell = this.board[y][x];
+                    rect = this.rects[y][x];
+                    
+                    if (cell) {
+                        rect.attr('fill','#000');
+                    } else {
+                        rect.attr('fill', '#fff');
+                    }
+                }
+            }
         }
     });
     
