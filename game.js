@@ -3,6 +3,11 @@
         return Math.floor(Math.random() * n);
     }
     
+    function fillRect(rect, cell) {
+        var hexColor = cell ? '#000' : '#fff';
+        rect.attr('fill', hexColor);
+    }
+    
     function generateBoard(dimensions, liveCells) {
         var w = dimensions.width,
             h = dimensions.height,
@@ -49,6 +54,7 @@
                 rect.attr('fill', '#fff');
                 
                 rects[y].push(rect);
+                fillRect(rect, board[y][x]);
             }
         }
         
@@ -66,50 +72,32 @@
         var liveCells = options.liveCells || 0;
         
         this.board = generateBoard(this.dimensions, liveCells);
+        
+        initUI(this);
     };
     
     _.extend(GameOfLife.prototype, {
         takeStep: function() {
-            var board = this.board,
-                nextBoard = [], 
-                rowLen, x, y;
+            var self = this,
+                board = self.board,
+                nextBoard = [], rect;
             
             // starting in the top-left corner iterate over
             // each row, persisting the evolved state of each
-            // cell into a new board
-            for (y = 0; y < board.length; y++) {
-                rowLen = board[y].length;
+            // cell into a new board, updating the UI as we go
+            _.each(board, function(row, y) {
                 nextBoard.push([]);
                 
-                for (x = 0; x < rowLen; x++) {
-                    nextBoard[y].push(Darwin.evolveCell(board, x, y));
-                }
-            }
-            
-            this.board = nextBoard;
-        },
-        
-        render: function() {
-            if (! this.rects) {
-                initUI(this);
-            }
-            
-            var cell, rect, rowLen, y, x;
-            
-            for (y = 0; y < this.board.length; y++) {
-                rowLen = this.board[y].length;
-                
-                for (x = 0; x < rowLen; x++) {
-                    cell = this.board[y][x];
-                    rect = this.rects[y][x];
+                _.each(row, function(cell, x) {
+                    rect = self.rects[y][x];
+                    cell = Darwin.evolveCell(board, x, y);
                     
-                    if (cell) {
-                        rect.attr('fill','#000');
-                    } else {
-                        rect.attr('fill', '#fff');
-                    }
-                }
-            }
+                    nextBoard[y].push(cell);
+                    fillRect(rect, cell);
+                });
+            });
+            
+            self.board = nextBoard;
         }
     });
     
