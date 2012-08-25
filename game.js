@@ -1,11 +1,11 @@
-(function() {
+(function(scope) {
     function random(n) {
         return Math.floor(Math.random() * n);
     }
     
     function fillRect(rect, cell) {
-        var hexColor = cell ? '#000' : '#fff';
-        rect.attr('fill', hexColor);
+        var className = cell ? 'live' : 'dead';
+        rect.removeClass('live dead').addClass(className);
     }
     
     function generateBoard(dimensions, liveCells) {
@@ -23,8 +23,8 @@
         }
         
         for (i = 0; i < liveCells; i++) {
-            var x = random(w),
-                y = random(h);
+            x = random(w);
+            y = random(h);
             
             // retry if we hit a cell we've already made live
             if (board[y][x]) { i--; }
@@ -40,91 +40,105 @@
             dims = game.dimensions,
             size = 600 / dims.width,
             rects = [],
-            rect;
+            rect,
+            row, cell,
+            x, y;
         
-        game.paper = Raphael('game-board', 600, 600);
-        
-        _.each(board, function(row, y) {
+        for (y = 0; y < board.length; y++) {
+            row = board[y];
             rects.push([]);
-            
-            _.each(row, function(cell, x) {
-                var rect = game.paper.rect(size*x, size*y, size, size);
-                rects[y].push(rect);
-                
-                rect.attr('stroke', '#ccc');
+
+            for (x = 0; x < row.length; x++) {
+                cell = row[x];
+
+                rect = $('<div></div>').css({
+                    top: size*x,
+                    left: size*y,
+                    height: size,
+                    width: size
+                }).addClass('cell dead');
+
+                game.$el.append(rect);
+
                 fillRect(rect, board[y][x]);
-            });
-        });
-        
+                rects[y].push(rect);
+            }
+        }
+
         game.rects = rects;
     }
     
-    GameOfLife = function(options) {
+    scope.GameOfLife = function(options) {
         options = options || {};
         
-         this.dimensions = _.extend({
+         this.dimensions = $.extend({
             width: 20,
             height: 20
         }, options);
+
+        this.$el = options.el;
         
         var liveCells = options.liveCells || 0;
         
         this.board = generateBoard(this.dimensions, liveCells);
         
         initUI(this);
-    };
-    
-    _.extend(GameOfLife.prototype, {
-        takeStep: function() {
+
+        this.takeStep = function() {
             var self = this,
                 board = self.board,
-                nextBoard = [], rect;
-            
+                nextBoard = [],
+                row, cell, rect, x ,y;
+
             // starting in the top-left corner iterate over
             // each row, persisting the evolved state of each
             // cell into a new board, updating the UI as we go
-            _.each(board, function(row, y) {
+            for (y = 0; y < board.length; y++) {
+                row = board[y];
+
                 nextBoard.push([]);
-                
-                _.each(row, function(cell, x) {
+
+                for (x = 0; x < row.length; x++) {
                     rect = self.rects[y][x];
+
                     cell = Darwin.evolveCell(board, x, y);
-                    
                     nextBoard[y].push(cell);
                     fillRect(rect, cell);
-                });
-            });
-            
-            self.board = nextBoard;
-        }
-    });
-    
-    // gets the live cell count of the adjacent cells
-    // surrounding the target cell, given by the row/column coord.
-    function getLiveCellCount(board, row, col) {
-        var count = 0,
-            minx = Math.max(0, row - 1),
-            maxx = Math.min(board[0].length - 1, row + 1),
-            miny = Math.max(0, col - 1),
-            maxy = Math.min(board.length - 1, col + 1),
-            x, y;
-        
-        for (y = miny; y <= maxy; y++) {
-            for (x = minx; x <= maxx; x++) {
-                if (x === row && y === col) { continue; }
-                
-                if (board[y][x]) {
-                    count++;
                 }
             }
-        }
-        
-        return count;
-    }
+
+            self.board = nextBoard;
+        };
+    };
     
-    Darwin = {
+    $.extend(GameOfLife.prototype, {
+
+    });
+
+    scope.Darwin = {
+        getLiveCellCount: function(board, row, col) {
+            var count = 0,
+                minx = Math.max(0, row - 1),
+                maxx = Math.min(board[0].length - 1, row + 1),
+                miny = Math.max(0, col - 1),
+                maxy = Math.min(board.length - 1, col + 1),
+                x, y;
+
+            for (y = miny; y <= maxy; y++) {
+                for (x = minx; x <= maxx; x++) {
+                    if (x === row && y === col) { continue; }
+
+                    if (board[y][x]) {
+                        count++;
+                    }
+                }
+            }
+
+            return count;
+        },
+
         evolveCell: function(board, x, y) {
-            var liveCellCount = getLiveCellCount(board, x, y),
+            var liveCellCount = Darwin.getLiveCellCount(board, x, y),
                 alive = board[y][x];
             
             if (alive) {
@@ -133,5 +147,5 @@
             
             return liveCellCount === 3;
         }
-    }
-}());
+    };
+}(window));

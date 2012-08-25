@@ -43,7 +43,7 @@ describe('GameOfLife', function() {
         
         var foundLiveCell;
         
-        _.each(game.board, function(row) {
+        $.each(game.board, function(i, row) {
             if (foundLiveCell) { return; }
             
             foundLiveCell = _.find(row, function(cell) {

@@ -2,23 +2,23 @@
 <html>
 <head>
     <title>Game of Life</title>
-    
-    <script type="text/javascript" src="ext/underscore.js"></script>
+
+    <link href="game.css" rel="stylesheet"/>
+
     <script type="text/javascript" src="ext/jquery.js"></script>
-    <script type="text/javascript" src="ext/raphael-min.js"></script>
     <script type="text/javascript" src="game.js"></script>
 </head>
 <body>
     <div id="game-board"></div>
     
     <script type="text/javascript">
-    var Game = new GameOfLife({
-        width: 50,
-        height: 50,
-        liveCells: 400
-    });
-    
     $(document).ready(function(evt) {
+        var Game = window.Game = new GameOfLife({
+            el: $('#game-board'),
+            width: 50,
+            height: 50,
+            liveCells: 400
+        });
         setInterval(function() {
             Game.takeStep();
         }, 100);
