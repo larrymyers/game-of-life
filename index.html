@@ -9,19 +9,23 @@
     <script type="text/javascript" src="game.js"></script>
 </head>
 <body>
-    <div id="game-board"></div>
+    <div id="game-board" style="height: 600px; width: 600px;"></div>
+
+    <button class="start">Start</button>
+    <button class="stop">Stop</button>
     
     <script type="text/javascript">
     $(document).ready(function(evt) {
         var Game = window.Game = new GameOfLife({
             el: $('#game-board'),
-            width: 50,
-            height: 50,
+            cells: 50,
             liveCells: 400
         });
-        setInterval(function() {
-            Game.takeStep();
-        }, 100);
+
+        $('.start').click(Game.start);
+        $('.stop').click(Game.stop);
+
+        Game.start();
     });
     </script>
 </body>

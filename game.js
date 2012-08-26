@@ -8,23 +8,21 @@
         rect.removeClass('live dead').addClass(className);
     }
     
-    function generateBoard(dimensions, liveCells) {
-        var w = dimensions.width,
-            h = dimensions.height,
-            board = [],
+    function generateBoard(cells, liveCells) {
+        var board = [],
             i, j, x, y;
         
-        for (i = 0; i < h; i++) {
+        for (i = 0; i < cells; i++) {
             board.push([]);
             
-            for (j = 0; j < w; j++) {
+            for (j = 0; j < cells; j++) {
                 board[i].push(false);
             }
         }
         
         for (i = 0; i < liveCells; i++) {
-            x = random(w);
-            y = random(h);
+            x = random(cells);
+            y = random(cells);
             
             // retry if we hit a cell we've already made live
             if (board[y][x]) { i--; }
@@ -37,8 +35,9 @@
     
     function initUI(game) {
         var board = game.board,
-            dims = game.dimensions,
-            size = 600 / dims.width,
+            cells = game.cells,
+            boardSize = game.$el.width(),
+            cellSize = boardSize / cells,
             rects = [],
             rect,
             row, cell,
@@ -52,10 +51,10 @@
                 cell = row[x];
 
                 rect = $('<div></div>').css({
-                    top: size*x,
-                    left: size*y,
-                    height: size,
-                    width: size
+                    top: cellSize*x,
+                    left: cellSize*y,
+                    height: cellSize,
+                    width: cellSize
                 }).addClass('cell dead');
 
                 game.$el.append(rect);
@@ -69,24 +68,18 @@
     }
     
     scope.GameOfLife = function(options) {
-        options = options || {};
-        
-         this.dimensions = $.extend({
-            width: 20,
-            height: 20
+        var self = this;
+
+        $.extend(self, {
+            cells: 25,
+            liveCells: 100
         }, options);
 
-        this.$el = options.el;
-        
-        var liveCells = options.liveCells || 0;
-        
-        this.board = generateBoard(this.dimensions, liveCells);
-        
-        initUI(this);
+        self.$el = options.el;
+        self.board = generateBoard(self.cells, self.liveCells);
 
-        this.takeStep = function() {
-            var self = this,
-                board = self.board,
+        self.takeStep = function() {
+            var board = self.board,
                 nextBoard = [],
                 row, cell, rect, x ,y;
 
@@ -109,11 +102,17 @@
 
             self.board = nextBoard;
         };
-    };
-    
-    $.extend(GameOfLife.prototype, {
 
-    });
+        self.start = function() {
+            self.timerId = setInterval(self.takeStep, 100);
+        };
+
+        self.stop = function() {
+            clearInterval(self.timerId);
+        };
+
+        initUI(self);
+    };
 
     scope.Darwin = {
         getLiveCellCount: function(board, row, col) {
