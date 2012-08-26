@@ -72,7 +72,7 @@
 
         $.extend(self, {
             cells: 25,
-            liveCells: 100
+            liveCells: 0
         }, options);
 
         self.$el = options.el;
