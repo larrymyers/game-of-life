@@ -3,11 +3,6 @@
         return Math.floor(Math.random() * n);
     }
     
-    function fillRect(rect, cell) {
-        var className = cell ? 'live' : 'dead';
-        rect.removeClass('live dead').addClass(className);
-    }
-    
     function generateBoard(cells, liveCells) {
         var board = [],
             i, j, x, y;
@@ -32,56 +27,19 @@
         
         return board;
     }
-    
-    function initUI(game) {
-        var board = game.board,
-            cells = game.cells,
-            boardSize = game.$el.width(),
-            cellSize = boardSize / cells,
-            rects = [],
-            rect,
-            row, cell,
-            x, y;
-        
-        for (y = 0; y < board.length; y++) {
-            row = board[y];
-            rects.push([]);
 
-            for (x = 0; x < row.length; x++) {
-                cell = row[x];
-
-                rect = $('<div></div>').css({
-                    top: cellSize*x,
-                    left: cellSize*y,
-                    height: cellSize,
-                    width: cellSize
-                }).addClass('cell dead');
-
-                game.$el.append(rect);
-
-                fillRect(rect, board[y][x]);
-                rects[y].push(rect);
-            }
-        }
-
-        game.rects = rects;
-    }
-    
     scope.GameOfLife = function(options) {
         var self = this;
 
-        $.extend(self, {
-            cells: 25,
-            liveCells: 0
-        }, options);
-
-        self.$el = options.el;
+        self.ui = options.ui;
+        self.cells = options.cells || 25;
+        self.liveCells = options.liveCells || 0;
         self.board = generateBoard(self.cells, self.liveCells);
 
         self.takeStep = function() {
             var board = self.board,
                 nextBoard = [],
-                row, cell, rect, x ,y;
+                row, cell, x ,y;
 
             // starting in the top-left corner iterate over
             // each row, persisting the evolved state of each
@@ -92,14 +50,12 @@
                 nextBoard.push([]);
 
                 for (x = 0; x < row.length; x++) {
-                    rect = self.rects[y][x];
-
                     cell = Darwin.evolveCell(board, x, y);
                     nextBoard[y].push(cell);
-                    fillRect(rect, cell);
                 }
             }
 
+            self.ui.draw(nextBoard);
             self.board = nextBoard;
         };
 
@@ -111,7 +67,8 @@
             clearInterval(self.timerId);
         };
 
-        initUI(self);
+        self.ui.init(self);
+        self.ui.draw(self.board);
     };
 
     scope.Darwin = {
@@ -146,5 +103,55 @@
             
             return liveCellCount === 3;
         }
+    };
+
+    scope.DomUI = function(rootEl) {
+        var self = this;
+
+        self.el = rootEl;
+
+        self.init = function(game) {
+            var board = game.board,
+                cells = game.cells,
+                boardSize = self.el.clientWidth,
+                cellSize = boardSize / cells,
+                rects = [],
+                rect,
+                row, cell,
+                x, y;
+
+            for (y = 0; y < board.length; y++) {
+                row = board[y];
+                rects.push([]);
+
+                for (x = 0; x < row.length; x++) {
+                    cell = row[x];
+
+                    rect = document.createElement('div');
+                    rect.className = 'dead cell';
+                    rect.style.setProperty('top', cellSize * x + 'px');
+                    rect.style.setProperty('left', cellSize * y + 'px');
+                    rect.style.setProperty('height', cellSize + 'px');
+                    rect.style.setProperty('width', cellSize + 'px');
+
+                    self.el.appendChild(rect);
+                    rects[y].push(rect);
+                }
+            }
+
+            self.rects = rects;
+        };
+
+        self.draw = function(board) {
+            var rect, cell, x, y;
+
+            for (y = 0; y < board.length; y++) {
+                for (x = 0; x < board[y].length; x++) {
+                    cell = board[y][x];
+                    rect = self.rects[y][x];
+                    rect.className = cell ? 'live cell' : 'dead cell';
+                }
+            }
+        };
     };
 }(window));

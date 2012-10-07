@@ -5,28 +5,27 @@
 
     <link href="game.css" rel="stylesheet"/>
 
-    <script type="text/javascript" src="ext/jquery.js"></script>
     <script type="text/javascript" src="game.js"></script>
 </head>
 <body>
     <div id="game-board" style="height: 600px; width: 600px;"></div>
 
-    <button class="start">Start</button>
-    <button class="stop">Stop</button>
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>
     
     <script type="text/javascript">
-    $(document).ready(function(evt) {
-        var Game = window.Game = new GameOfLife({
-            el: $('#game-board'),
-            cells: 50,
-            liveCells: 400
+        window.addEventListener('load', function() {
+            var Game = window.Game =  new GameOfLife({
+                ui: new DomUI(document.getElementById('game-board')),
+                cells: 50,
+                liveCells: 400
+            });
+
+            document.getElementById('start').addEventListener('click', Game.start);
+            document.getElementById('stop').addEventListener('click', Game.stop);
+
+            Game.start();
         });
-
-        $('.start').click(Game.start);
-        $('.stop').click(Game.stop);
-
-        Game.start();
-    });
     </script>
 </body>
 </html>
