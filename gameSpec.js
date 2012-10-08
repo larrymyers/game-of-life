@@ -1,8 +1,7 @@
 describe('GameOfLife', function() {
-    
+    var DummyUI = { init: function() {}, draw: function() {} };
+
     beforeEach(function() {
-        $('body').append('<div id="game-board" style="height: 600px; width: 600px"></div>');
-        
         this.addMatchers({
             toMatchBoard: function(expected) {
                 var actual = this.actual,
@@ -21,13 +20,9 @@ describe('GameOfLife', function() {
         });
     });
     
-    afterEach(function() {
-        $('#game-board').remove();
-    });
-    
     it('Should default to a 25x25 board.', function() {
         var game = new GameOfLife({
-            el: $('#game-board')
+            ui: DummyUI
         });
         
         expect(game.board.length).toBe(25);
@@ -36,28 +31,36 @@ describe('GameOfLife', function() {
     
     it('Should generate a board with all dead cells of the specified dimensions.', function() {
         var game = new GameOfLife({
-            el: $('#game-board'),
+            ui: DummyUI,
             cells: 10
         });
         
         expect(game.board.length).toBe(10);
         expect(game.board[0].length).toBe(10);
-        expect($('div.live').length).toEqual(0);
     });
     
     it('Can be initialized with the number of random live cells to place on the board.', function() {
         var game = new GameOfLife({
-            el: $('#game-board'),
+            ui: DummyUI,
             cells: 10,
             liveCells: 10
         });
-        
-        expect($('div.live').length).toEqual(10);
+
+        var board = game.board;
+        var liveCellsFound = 0;
+
+        for (var y = 0; y < board.length; y++) {
+            for (var x = 0; x < board[y].length; x++) {
+                if (board[y][x]) { liveCellsFound++; }
+            }
+        }
+
+        expect(liveCellsFound).toEqual(10);
     });
     
     it('Should produce the next generation of the board when a step is taken.', function() {
         var game = new GameOfLife({
-            el: $('#game-board')
+            ui: DummyUI
         });
         
         game.board = [

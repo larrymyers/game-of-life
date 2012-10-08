@@ -4,8 +4,6 @@
     <title>Game of Life Specs</title>
     <link href="ext/jasmine.css" media="all" rel="stylesheet" type="text/css"/>
     
-    <script type="text/javascript" src="ext/jquery.js"></script>
-
     <script type="text/javascript" src="game.js"></script>
     
     <script type="text/javascript" src="ext/jasmine.js"></script>
@@ -16,8 +14,8 @@
 <body>
     <script type="text/javascript">
     var reporter = new jasmine.TrivialReporter();
-    
-    $(document).ready(function(evt) {
+
+    window.addEventListener('load', function() {
         jasmine.getEnv().addReporter(reporter);
         jasmine.getEnv().execute();
     });
