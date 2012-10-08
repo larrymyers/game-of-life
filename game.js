@@ -29,12 +29,12 @@
     }
 
     scope.GameOfLife = function(options) {
-        var self = this;
+        var self = this,
+            ui = options.ui,
+            cells = options.cells || 25,
+            liveCells = options.liveCells || 0;
 
-        self.ui = options.ui;
-        self.cells = options.cells || 25;
-        self.liveCells = options.liveCells || 0;
-        self.board = generateBoard(self.cells, self.liveCells);
+        var board = self.board = generateBoard(cells, liveCells);
 
         self.takeStep = function() {
             var board = self.board,
@@ -55,7 +55,7 @@
                 }
             }
 
-            self.ui.draw(nextBoard);
+            ui.draw(nextBoard);
             self.board = nextBoard;
         };
 
@@ -67,8 +67,8 @@
             clearInterval(self.timerId);
         };
 
-        self.ui.init(self);
-        self.ui.draw(self.board);
+        ui.init(board);
+        ui.draw(board);
     };
 
     scope.Darwin = {
@@ -105,34 +105,62 @@
         }
     };
 
+    scope.CanvasUI = function(rootEl) {
+        var self = this,
+            boardSize = rootEl.clientWidth,
+            canvas = document.createElement('canvas');
+
+        canvas.setAttribute('width', rootEl.clientWidth + 'px');
+        canvas.setAttribute('height', rootEl.clientWidth + 'px');
+
+        rootEl.appendChild(canvas);
+
+        self.draw = function(board) {
+            var ctx = canvas.getContext('2d'),
+                cells = board.length,
+                cellSize = boardSize / cells,
+                x, y;
+
+            ctx.clearRect(0, 0, boardSize, boardSize);
+            ctx.fillStyle = '#000';
+
+            for (y = 0; y < cells; y++) {
+                for (x = 0; x < cells; x++) {
+                    if (board[y][x]) {
+                        ctx.fillRect(cellSize*x, cellSize*y, cellSize, cellSize);
+                    }
+                }
+            }
+
+            ctx.fill();
+        };
+
+        self.init = self.draw;
+    };
+
     scope.DomUI = function(rootEl) {
         var self = this;
 
         self.el = rootEl;
 
-        self.init = function(game) {
-            var board = game.board,
-                cells = game.cells,
+        self.init = function(board) {
+            var cells = board.length,
                 boardSize = self.el.clientWidth,
                 cellSize = boardSize / cells,
                 rects = [],
                 rect,
-                row, cell,
                 x, y;
 
-            for (y = 0; y < board.length; y++) {
-                row = board[y];
+            for (y = 0; y < cells; y++) {
                 rects.push([]);
 
-                for (x = 0; x < row.length; x++) {
-                    cell = row[x];
-
+                for (x = 0; x < cells; x++) {
                     rect = document.createElement('div');
                     rect.className = 'dead cell';
-                    rect.style.setProperty('top', cellSize * x + 'px');
-                    rect.style.setProperty('left', cellSize * y + 'px');
-                    rect.style.setProperty('height', cellSize + 'px');
-                    rect.style.setProperty('width', cellSize + 'px');
+                    rect.style.top = cellSize * x + 'px';
+                    rect.style.left = cellSize * y + 'px';
+                    rect.style.height = cellSize + 'px';
+                    rect.style.width = cellSize + 'px';
 
                     self.el.appendChild(rect);
                     rects[y].push(rect);
